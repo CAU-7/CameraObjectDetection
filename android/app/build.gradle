@@ -85,6 +85,13 @@ android {
         versionCode 1
         versionName "1.0"
     }
+    // flavorDimensions 및 productFlavors 추가
+    // flavorDimensions "reactNativeCamera"
+    // productFlavors {
+    //     general {
+    //         dimension "reactNativeCamera"
+    //     }
+    // }
     signingConfigs {
         debug {
             storeFile file('debug.keystore')
