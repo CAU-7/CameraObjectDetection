@@ -1,33 +1,62 @@
 // app/components/ObjectDetection.js
-import * as tf from '@tensorflow/tfjs';
-import * as cocoSsd from '@tensorflow-models/coco-ssd';
+import Tflite from 'react-native-tflite';
 
 const ObjectDetection = {
-  model: null,
+  isModelLoaded: false,
 
   async loadModel() {
-    if (!this.model) {
-      this.model = await cocoSsd.load();
+    if (!this.isModelLoaded) {
+      try {
+        await Tflite.loadModel({
+          model: 'model.tflite',
+          labels: 'labels.txt',
+          numThreads: 4,
+          isAsset: true,
+        });
+        this.isModelLoaded = true;
+        console.log('모델 로딩 성공');
+      } catch (error) {
+        console.error('모델 로딩 실패:', error);
+      }
     }
   },
 
-  async detectObjects(frame) {
-    if (!this.model) {
+  async detectObjects(frameData) {
+    if (!this.isModelLoaded) {
       await this.loadModel();
     }
 
-    // 프레임에서 이미지 데이터를 Tensor로 변환 후 감지 실행
-    const imageTensor = tf.browser.fromPixels(frame);
+    try {
+      const results = await Tflite.detectObjectOnFrame({
+        imageData: frameData.image,
+        imageWidth: frameData.width,
+        imageHeight: frameData.height,
+        rotation: frameData.rotation,
+        model: 'SSD',
+        imageMean: 127.5,
+        imageStd: 127.5,
+        threshold: 0.3,
+        numResultsPerClass: 3,
+      });
 
-    const predictions = await this.model.detect(imageTensor);
-    predictions.forEach(prediction => {
-      console.log(`Detected object: ${prediction.class} - ${prediction.score}`);
-    });
+      return this.processResults(results);
+    } catch (error) {
+      console.error('객체 감지 실패:', error);
+      return [];
+    }
+  },
 
-    // Tensor 메모리 해제
-    imageTensor.dispose();
-
-    return predictions;
+  processResults(results) {
+    return results.map(detection => ({
+      bbox: [
+        detection.rect.x,
+        detection.rect.y,
+        detection.rect.w,
+        detection.rect.h,
+      ],
+      class: detection.detectedClass,
+      score: detection.confidenceInClass,
+    }));
   },
 };
 

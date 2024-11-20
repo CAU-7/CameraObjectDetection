@@ -12,9 +12,13 @@
   "dependencies": {
     "@tensorflow-models/coco-ssd": "^2.2.3",
     "@tensorflow/tfjs": "^4.22.0",
+    "@tensorflow/tfjs-backend-webgl": "^4.22.0",
+    "@tensorflow/tfjs-react-native": "^1.0.0",
     "react": "18.3.1",
     "react-native": "0.76.1",
-    "react-native-vision-camera": "^4.6.1"
+    "react-native-tflite": "^0.0.2",
+    "react-native-vision-camera": "^4.6.1",
+    "react-native-worklets-core": "^1.5.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
